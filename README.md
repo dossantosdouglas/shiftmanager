@@ -1,6 +1,88 @@
-# Shift Management Panel
+# Shift Management System
 
-A comprehensive Next.js application for managing employee shift actions including cancellations, modifications, and additions.
+Sistema de gerenciamento de turnos com Next.js 15, PostgreSQL e Prisma.
+
+## 🚀 Deploy Rápido no EC2
+
+```bash
+# 1. Upload do script
+scp deploy.sh ubuntu@your-ec2-ip:~/
+
+# 2. Executar no EC2
+ssh ubuntu@your-ec2-ip
+chmod +x deploy.sh
+./deploy.sh
+```
+
+## 🛠️ Desenvolvimento Local
+
+### Pré-requisitos
+
+- Node.js 20+
+- Docker (para PostgreSQL)
+
+### Setup
+
+```bash
+# 1. Instalar dependências
+npm install
+
+# 2. Configurar ambiente
+cp .env.example .env
+
+# 3. Iniciar PostgreSQL
+docker compose up -d
+
+# 4. Configurar banco
+npx prisma migrate dev
+npx prisma generate
+
+# 5. Executar aplicação
+npm run dev
+```
+
+## 📊 Funcionalidades
+
+- ✅ Autenticação (Funcionário/Admin)
+- ✅ Registro de turnos (Cancelar/Modificar/Adicionar)
+- ✅ Confirmação de turnos (Admin)
+- ✅ Relatórios (Admin)
+- ✅ Tema claro/escuro
+- ✅ Interface responsiva
+
+## 🔧 Stack Tecnológica
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Backend**: Next.js API Routes
+- **Banco**: PostgreSQL
+- **ORM**: Prisma
+- **UI**: shadcn/ui, Tailwind CSS
+- **Deploy**: EC2 + PM2 + Docker (PostgreSQL)
+
+## 📖 Documentação
+
+- [Deploy Completo](DEPLOY.md) - Instruções detalhadas de deploy
+- [Schema do Banco](prisma/schema.prisma) - Estrutura do banco de dados
+
+## 📝 Comandos Úteis
+
+```bash
+# Gerar Prisma Client
+npx prisma generate
+
+# Executar migrações
+npx prisma migrate deploy
+
+# Reset do banco (dev)
+npx prisma migrate reset
+
+# Visualizar banco
+npx prisma studio
+
+# Build para produção
+npm run build
+npm start
+```
 
 ## Features
 
