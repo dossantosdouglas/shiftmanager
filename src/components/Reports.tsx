@@ -37,7 +37,8 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { ActionType, ShiftType } from "@prisma/client";
-import { ReportResponse } from "@/types/shift";
+import { ReportResponse, HeatMapResponse } from "@/types/shift";
+import { HeatMap } from "./HeatMap";
 
 interface ReportsProps {
   refreshTrigger?: number;
@@ -45,8 +46,11 @@ interface ReportsProps {
 
 export function Reports({ refreshTrigger }: ReportsProps) {
   const [reportData, setReportData] = useState<ReportResponse | null>(null);
+  const [heatMapData, setHeatMapData] = useState<HeatMapResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isHeatMapLoading, setIsHeatMapLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [heatMapError, setHeatMapError] = useState<string | null>(null);
 
   // Filter states
   const [employeeFilter, setEmployeeFilter] = useState("");
@@ -86,12 +90,40 @@ export function Reports({ refreshTrigger }: ReportsProps) {
     }
   }, [employeeFilter, actionTypeFilter, shiftTypeFilter, startDate, endDate]);
 
+  const fetchHeatMapData = useCallback(async () => {
+    setIsHeatMapLoading(true);
+    setHeatMapError(null);
+
+    try {
+      const params = new URLSearchParams();
+      if (startDate) params.append("startDate", startDate.toISOString());
+      if (endDate) params.append("endDate", endDate.toISOString());
+
+      const response = await fetch(`/api/reports/heatmap?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch heat map data");
+      }
+
+      const data = await response.json();
+      setHeatMapData(data);
+    } catch (err) {
+      setHeatMapError(
+        err instanceof Error ? err.message : "Failed to fetch heat map data"
+      );
+    } finally {
+      setIsHeatMapLoading(false);
+    }
+  }, [startDate, endDate]);
+
   useEffect(() => {
     fetchReports();
-  }, [fetchReports, refreshTrigger]);
+    fetchHeatMapData();
+  }, [fetchReports, fetchHeatMapData, refreshTrigger]);
 
   const handleFilterChange = () => {
     fetchReports();
+    fetchHeatMapData();
   };
 
   const clearFilters = () => {
@@ -281,6 +313,39 @@ export function Reports({ refreshTrigger }: ReportsProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Heat Map */}
+      {isHeatMapLoading ? (
+        <Card>
+          <CardContent className="flex justify-center py-8">
+            <div className="text-muted-foreground">Loading heat map...</div>
+          </CardContent>
+        </Card>
+      ) : heatMapError ? (
+        <Card>
+          <CardContent className="flex justify-center py-8">
+            <div className="text-red-500">
+              Error loading heat map: {heatMapError}
+            </div>
+          </CardContent>
+        </Card>
+      ) : heatMapData && heatMapData.totalCancellations > 0 ? (
+        <HeatMap
+          data={heatMapData.heatMapData}
+          hourlyTotals={heatMapData.hourlyTotals}
+          dailyTotals={heatMapData.dailyTotals}
+          totalCancellations={heatMapData.totalCancellations}
+        />
+      ) : (
+        <Card>
+          <CardContent className="flex justify-center py-8">
+            <div className="text-muted-foreground">
+              No cancellation data available for heat map. Try adjusting your
+              date range.
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Reports Table */}
       <Card>

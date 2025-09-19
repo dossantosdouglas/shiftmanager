@@ -7,20 +7,24 @@ Sistema de gerenciamento de turnos com Next.js 15, PostgreSQL e Prisma.
 ### 1. Fork o repositório no GitHub
 
 ### 2. Configurar variáveis de ambiente na Vercel:
+
 ```
 DATABASE_URL=postgresql://admin:senha123@3.22.121.135:5432/meubanco
 ```
 
 ### 3. Deploy automático
+
 - Conecte seu repositório GitHub na Vercel
 - O deploy será automático a cada push
 
 ## 🛠️ Desenvolvimento Local
 
 ### Pré-requisitos
+
 - Node.js 20+
 
 ### Setup
+
 ```bash
 # 1. Instalar dependências
 npm install
@@ -42,6 +46,7 @@ npm run dev
 - ✅ Registro de turnos (Cancelar/Modificar/Adicionar)
 - ✅ Confirmação de turnos (Admin)
 - ✅ Relatórios (Admin)
+- ✅ **Heat Map de Cancelamentos** - Visualização dos horários com mais cancelamentos
 - ✅ Tema claro/escuro
 - ✅ Interface responsiva
 
@@ -77,6 +82,7 @@ npm start
 ## 🗄️ Configuração do Banco
 
 O sistema está configurado para usar PostgreSQL remoto:
+
 - **Host**: 3.22.121.135
 - **Porta**: 5432
 - **Usuário**: admin

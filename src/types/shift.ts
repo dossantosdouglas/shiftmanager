@@ -34,3 +34,14 @@ export interface ReportResponse {
   summary: ReportSummary[];
   totalRecords: number;
 }
+
+export interface HeatMapResponse {
+  heatMapData: number[][];
+  hourlyTotals: number[];
+  dailyTotals: number[];
+  totalCancellations: number;
+  dateRange: {
+    start: string | null;
+    end: string | null;
+  };
+}
