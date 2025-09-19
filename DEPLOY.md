@@ -9,11 +9,13 @@
 ## Opção 1: Deploy Automático
 
 1. Faça upload do script `deploy.sh` para o EC2:
+
 ```bash
 scp deploy.sh ubuntu@your-ec2-ip:~/
 ```
 
 2. Execute o script:
+
 ```bash
 ssh ubuntu@your-ec2-ip
 chmod +x deploy.sh
@@ -23,11 +25,13 @@ chmod +x deploy.sh
 ## Opção 2: Deploy Manual
 
 ### 1. Conectar ao EC2
+
 ```bash
 ssh ubuntu@your-ec2-ip
 ```
 
 ### 2. Instalar Docker
+
 ```bash
 sudo apt update
 sudo apt install -y docker.io docker-compose
@@ -37,12 +41,14 @@ sudo usermod -aG docker $USER
 ```
 
 ### 3. Clonar o repositório
+
 ```bash
 git clone https://github.com/dossantosdouglas/shiftmanager.git
 cd shiftmanager
 ```
 
 ### 4. Configurar ambiente
+
 ```bash
 # Criar arquivo .env
 echo "DATABASE_URL=file:./dev.db" > .env
@@ -50,6 +56,7 @@ echo "NODE_ENV=production" >> .env
 ```
 
 ### 5. Executar com Docker Compose
+
 ```bash
 # Construir e executar
 docker-compose up -d
@@ -84,16 +91,19 @@ docker-compose exec shiftmanage sh
 ### Com Nginx como Reverse Proxy
 
 1. Instalar Nginx:
+
 ```bash
 sudo apt install -y nginx
 ```
 
 2. Configurar site:
+
 ```bash
 sudo nano /etc/nginx/sites-available/shiftmanage
 ```
 
 Adicione:
+
 ```nginx
 server {
     listen 80;
@@ -114,6 +124,7 @@ server {
 ```
 
 3. Ativar site:
+
 ```bash
 sudo ln -s /etc/nginx/sites-available/shiftmanage /etc/nginx/sites-enabled/
 sudo nginx -t
