@@ -37,9 +37,7 @@ export default function ShiftManagementPanel() {
         {/* Mobile Header */}
         <div className="block sm:hidden">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold tracking-tight">
-              Shift Panel
-            </h1>
+            <h1 className="text-xl font-bold tracking-tight">Shift Panel</h1>
             <div className="flex items-center gap-2">
               <Button onClick={logout} variant="outline" size="sm">
                 <LogOut className="h-4 w-4" />
