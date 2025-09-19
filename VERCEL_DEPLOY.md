@@ -45,6 +45,7 @@ Na dashboard da Vercel, vá em:
 **Project Settings → Environment Variables**
 
 Adicione:
+
 - **Name**: `DATABASE_URL`
 - **Value**: `postgresql://admin:senha123@3.22.121.135:5432/meubanco`
 - **Environment**: `Production`, `Preview`, `Development`
@@ -52,6 +53,7 @@ Adicione:
 ### Build Commands (Automático)
 
 A Vercel detecta automaticamente:
+
 - **Build Command**: `npm run build`
 - **Install Command**: `npm install`
 - **Development Command**: `npm run dev`
@@ -78,11 +80,13 @@ npm start
 ## 📊 Monitoramento
 
 ### Na Dashboard Vercel:
+
 - **Functions**: Ver logs das API routes
 - **Analytics**: Métricas de performance
 - **Domains**: Configurar domínio personalizado
 
 ### Logs da Aplicação:
+
 ```bash
 # Ver logs em tempo real
 vercel logs your-app-url
@@ -91,16 +95,19 @@ vercel logs your-app-url
 ## 🚨 Troubleshooting
 
 ### Erro de Conexão com Banco:
+
 1. Verificar se IP da Vercel está liberado no firewall
 2. Confirmar credenciais do PostgreSQL
 3. Testar conexão local primeiro
 
 ### Build Errors:
+
 1. Verificar se todas as dependências estão no `package.json`
 2. Confirmar que `npx prisma generate` roda sem erro
 3. Verificar TypeScript errors
 
 ### Environment Variables:
+
 1. Certificar que `DATABASE_URL` está definida
 2. Verificar se variável está aplicada em todos os ambientes
 3. Reiniciar deploy após mudanças
@@ -108,6 +115,7 @@ vercel logs your-app-url
 ## 🎯 Resultado Final
 
 Após o deploy bem-sucedido:
+
 - ✅ Aplicação rodando na Vercel
 - ✅ PostgreSQL remoto conectado
 - ✅ Deploy automático configurado
