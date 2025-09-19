@@ -32,19 +32,22 @@ export default function ShiftManagementPanel() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Shift Management Panel
-          </h1>
-          <p className="text-muted-foreground">
-            Manage employee shift actions including cancellations,
-            modifications, and additions.
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-sm">
+    <div className="container mx-auto py-4 sm:py-8 px-4">
+      <div className="mb-8">
+        {/* Mobile Header */}
+        <div className="block sm:hidden">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-xl font-bold tracking-tight">
+              Shift Panel
+            </h1>
+            <div className="flex items-center gap-2">
+              <Button onClick={logout} variant="outline" size="sm">
+                <LogOut className="h-4 w-4" />
+              </Button>
+              <ThemeToggle />
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-sm mb-2">
             {isAdmin ? (
               <Shield className="h-4 w-4 text-blue-600" />
             ) : (
@@ -53,11 +56,35 @@ export default function ShiftManagementPanel() {
             <span className="font-medium">{user.name}</span>
             <span className="text-muted-foreground">({user.role})</span>
           </div>
-          <Button onClick={logout} variant="outline" size="sm">
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
-          <ThemeToggle />
+        </div>
+
+        {/* Desktop Header */}
+        <div className="hidden sm:flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Shift Management Panel
+            </h1>
+            <p className="text-muted-foreground">
+              Manage employee shift actions including cancellations,
+              modifications, and additions.
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-sm">
+              {isAdmin ? (
+                <Shield className="h-4 w-4 text-blue-600" />
+              ) : (
+                <User className="h-4 w-4 text-gray-600" />
+              )}
+              <span className="font-medium">{user.name}</span>
+              <span className="text-muted-foreground">({user.role})</span>
+            </div>
+            <Button onClick={logout} variant="outline" size="sm">
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+            <ThemeToggle />
+          </div>
         </div>
       </div>
 
@@ -67,16 +94,19 @@ export default function ShiftManagementPanel() {
         >
           <TabsTrigger value="form" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            Log Shift
+            <span className="hidden sm:inline">Log Shift</span>
+            <span className="sm:hidden">Log</span>
           </TabsTrigger>
           <TabsTrigger value="shifts" className="flex items-center gap-2">
             <List className="h-4 w-4" />
-            View Shifts
+            <span className="hidden sm:inline">View Shifts</span>
+            <span className="sm:hidden">Shifts</span>
           </TabsTrigger>
           {isAdmin && (
             <TabsTrigger value="reports" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
-              Reports
+              <span className="hidden sm:inline">Reports</span>
+              <span className="sm:hidden">Reports</span>
             </TabsTrigger>
           )}
         </TabsList>
