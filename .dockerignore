@@ -1,18 +1,40 @@
-Dockerfile
-.dockerignore
+# Vercel
+.vercel
+
+# Dependencies
 node_modules
 npm-debug.log
-README.md
+
+# Environment
 .env
 .env.local
 .env.production.local
 .env.development.local
+
+# Git
 .git
 .gitignore
+
+# Build
 .next
-.vercel
+dist
+build
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Coverage
 coverage
 .nyc_output
-.DS_Store
+
+# Misc
 *.tgz
 *.tar.gz
