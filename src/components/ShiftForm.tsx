@@ -24,7 +24,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -39,6 +38,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { ActionType, ShiftType } from "@prisma/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Define predefined time slots
 const TIME_SLOTS = [
@@ -87,9 +87,6 @@ const TIME_SLOTS = [
 ];
 
 const formSchema = z.object({
-  employeeName: z.string().min(2, {
-    message: "Employee name must be at least 2 characters.",
-  }),
   actionType: z.nativeEnum(ActionType, {
     message: "Please select an action type.",
   }),
@@ -116,11 +113,11 @@ export function ShiftForm({ onSuccess }: ShiftFormProps) {
     type: "success" | "error";
     text: string;
   } | null>(null);
+  const { user } = useAuth();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      employeeName: "",
       timeSlot: "",
     },
   });
@@ -138,13 +135,17 @@ export function ShiftForm({ onSuccess }: ShiftFormProps) {
         throw new Error("Invalid time slot selected");
       }
 
+      if (!user?.name) {
+        throw new Error("User not authenticated");
+      }
+
       const response = await fetch("/api/shifts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          employeeName: values.employeeName,
+          employeeName: user.name,
           actionType: values.actionType,
           shiftDate: values.shiftDate.toISOString(),
           startTime: selectedTimeSlot.startTime,
@@ -194,26 +195,15 @@ export function ShiftForm({ onSuccess }: ShiftFormProps) {
                 </h3>
               </div>
 
-              <FormField
-                control={form.control}
-                name="employeeName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Employee Name
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter your full name"
-                        {...field}
-                        className="text-base"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Employee Name
+                </label>
+                <div className="px-3 py-2 border rounded-md bg-muted text-muted-foreground">
+                  {user?.name || "Not logged in"}
+                </div>
+              </div>
 
               <FormField
                 control={form.control}

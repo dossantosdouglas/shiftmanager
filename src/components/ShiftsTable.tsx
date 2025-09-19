@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Filter, Search } from "lucide-react";
+import { CalendarIcon, Filter, Search, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -90,6 +90,33 @@ export function ShiftsTable({ refreshTrigger }: ShiftsTableProps) {
     } catch (error) {
       console.error("Error updating confirmation:", error);
       // You could add a toast notification here
+    }
+  };
+
+  // Handle shift deletion
+  const handleDeleteShift = async (shiftId: string, employeeName: string) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete this shift record for ${employeeName}? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`/api/shifts?id=${shiftId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete shift");
+      }
+
+      // Remove the shift from the local state
+      setShifts((prevShifts) =>
+        prevShifts.filter((shift) => shift.id !== shiftId)
+      );
+    } catch (error) {
+      console.error("Error deleting shift:", error);
+      alert("Failed to delete shift. Please try again.");
     }
   };
 
@@ -352,6 +379,7 @@ export function ShiftsTable({ refreshTrigger }: ShiftsTableProps) {
                   <TableHead>Type</TableHead>
                   {isAdmin && <TableHead>Confirmed</TableHead>}
                   <TableHead>Submitted</TableHead>
+                  {isAdmin && <TableHead className="w-10"></TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -395,6 +423,21 @@ export function ShiftsTable({ refreshTrigger }: ShiftsTableProps) {
                     <TableCell className="text-muted-foreground">
                       {format(new Date(shift.createdAt), "MMM dd, HH:mm")}
                     </TableCell>
+                    {isAdmin && (
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            handleDeleteShift(shift.id, shift.employeeName)
+                          }
+                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          title="Delete shift record"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

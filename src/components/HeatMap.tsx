@@ -78,42 +78,48 @@ export function HeatMap({
               </strong>
             </span>
           </div>
-
           {/* Heat Map Grid */}
-          <div className="overflow-x-auto">
-            <div className="min-w-[800px]">
+          <div className="w-full">
+            <div className="w-full">
               {/* Hours Header */}
               <div className="flex mb-2">
-                <div className="w-12"></div> {/* Space for day labels */}
-                {HOURS.map((hour) => (
-                  <div
-                    key={hour}
-                    className="w-8 text-xs text-center text-muted-foreground"
-                  >
-                    {parseInt(hour) % 4 === 0 ? hour : ""}
-                  </div>
-                ))}
+                <div className="w-16 flex-shrink-0"></div>{" "}
+                {/* Space for day labels */}
+                <div className="flex-1 flex">
+                  {HOURS.map((hour) => (
+                    <div
+                      key={hour}
+                      className="flex-1 text-xs text-center text-muted-foreground min-w-0"
+                    >
+                      {parseInt(hour) % 4 === 0 ? hour : ""}
+                    </div>
+                  ))}
+                </div>
+                <div className="w-12 flex-shrink-0"></div>{" "}
+                {/* Space for totals */}
               </div>
 
               {/* Heat Map Rows */}
               {DAYS.map((day, dayIndex) => (
                 <div key={day} className="flex items-center mb-1">
-                  <div className="w-12 text-xs font-medium text-right pr-2">
+                  <div className="w-16 flex-shrink-0 text-xs font-medium text-right pr-2">
                     {day}
                   </div>
-                  {data[dayIndex].map((value, hourIndex) => (
-                    <div
-                      key={`${day}-${hourIndex}`}
-                      className={cn(
-                        "w-8 h-6 border border-gray-200 flex items-center justify-center text-xs transition-colors cursor-pointer",
-                        getColorClass(value)
-                      )}
-                      title={`${day} ${HOURS[hourIndex]}:00 - ${value} cancellations`}
-                    >
-                      {value > 0 ? value : ""}
-                    </div>
-                  ))}
-                  <div className="ml-2 text-xs text-muted-foreground">
+                  <div className="flex-1 flex">
+                    {data[dayIndex].map((value, hourIndex) => (
+                      <div
+                        key={`${day}-${hourIndex}`}
+                        className={cn(
+                          "flex-1 h-6 border border-gray-200 flex items-center justify-center text-xs transition-colors cursor-pointer min-w-0",
+                          getColorClass(value)
+                        )}
+                        title={`${day} ${HOURS[hourIndex]}:00 - ${value} cancellations`}
+                      >
+                        {value > 0 ? value : ""}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="w-12 flex-shrink-0 text-xs text-center text-muted-foreground">
                     {dailyTotals[dayIndex]}
                   </div>
                 </div>
@@ -121,19 +127,21 @@ export function HeatMap({
 
               {/* Hourly Totals Footer */}
               <div className="flex mt-2">
-                <div className="w-12"></div>
-                {hourlyTotals.map((total, index) => (
-                  <div
-                    key={index}
-                    className="w-8 text-xs text-center text-muted-foreground"
-                  >
-                    {total > 0 ? total : ""}
-                  </div>
-                ))}
+                <div className="w-16 flex-shrink-0"></div>
+                <div className="flex-1 flex">
+                  {hourlyTotals.map((total, index) => (
+                    <div
+                      key={index}
+                      className="flex-1 text-xs text-center text-muted-foreground min-w-0"
+                    >
+                      {total > 0 ? total : ""}
+                    </div>
+                  ))}
+                </div>
+                <div className="w-12 flex-shrink-0"></div>
               </div>
             </div>
-          </div>
-
+          </div>{" "}
           {/* Legend */}
           <div className="flex items-center gap-2 text-xs">
             <span className="text-muted-foreground">Less</span>
@@ -147,7 +155,6 @@ export function HeatMap({
             </div>
             <span className="text-muted-foreground">More</span>
           </div>
-
           {/* Insights */}
           {totalCancellations > 0 && (
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">

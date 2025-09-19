@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get("endDate");
 
     const where: {
-      employeeName?: { contains: string };
+      employeeName?: { contains: string; mode?: "insensitive" };
       actionType?: ActionType;
       shiftType?: ShiftType;
       shiftDate?: { gte?: Date; lte?: Date };
@@ -70,6 +70,7 @@ export async function GET(request: NextRequest) {
     if (employee) {
       where.employeeName = {
         contains: employee,
+        mode: "insensitive",
       };
     }
 
@@ -139,6 +140,49 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json(updatedShift);
   } catch (error) {
     console.error("Error updating shift confirmation:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const id = searchParams.get("id");
+
+    // Validate required fields
+    if (!id) {
+      return NextResponse.json(
+        { error: "Shift ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Check if the shift exists
+    const existingShift = await prisma.shift.findUnique({
+      where: { id },
+    });
+
+    if (!existingShift) {
+      return NextResponse.json(
+        { error: "Shift not found" },
+        { status: 404 }
+      );
+    }
+
+    // Delete the shift
+    await prisma.shift.delete({
+      where: { id },
+    });
+
+    return NextResponse.json(
+      { message: "Shift deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting shift:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

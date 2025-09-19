@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get("endDate");
 
     const where: {
-      employeeName?: { contains: string };
+      employeeName?: { contains: string; mode?: "insensitive" };
       actionType?: ActionType;
       shiftType?: ShiftType;
       shiftDate?: { gte?: Date; lte?: Date };
@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
     if (employee) {
       where.employeeName = {
         contains: employee,
+        mode: "insensitive",
       };
     }
 
