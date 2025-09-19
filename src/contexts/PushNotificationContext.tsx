@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useAuth } from "./AuthContext";
 
 interface PushNotificationContextType {
   isSupported: boolean;
@@ -27,6 +28,7 @@ export function PushNotificationProvider({
   const [subscription, setSubscription] = useState<PushSubscription | null>(
     null
   );
+  const { user } = useAuth();
 
   useEffect(() => {
     // Check if push notifications are supported
@@ -75,7 +77,7 @@ export function PushNotificationProvider({
   };
 
   const subscribeUser = async (): Promise<boolean> => {
-    if (!isSupported || permission !== "granted") {
+    if (!isSupported || permission !== "granted" || !user) {
       return false;
     }
 
@@ -101,6 +103,23 @@ export function PushNotificationProvider({
       // Store subscription in localStorage for persistence
       localStorage.setItem("pushSubscription", JSON.stringify(subscription));
 
+      // Save subscription to database
+      try {
+        await fetch("/api/subscriptions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: user.name,
+            subscription: subscription.toJSON(),
+          }),
+        });
+      } catch (dbError) {
+        console.error("Failed to save subscription to database:", dbError);
+        // Don't fail the subscription if database save fails
+      }
+
       return true;
     } catch (error) {
       console.error("Error subscribing user:", error);
@@ -109,7 +128,7 @@ export function PushNotificationProvider({
   };
 
   const unsubscribeUser = async (): Promise<boolean> => {
-    if (!subscription) {
+    if (!subscription || !user) {
       return false;
     }
 
@@ -119,6 +138,19 @@ export function PushNotificationProvider({
 
       // Remove from localStorage
       localStorage.removeItem("pushSubscription");
+
+      // Remove from database
+      try {
+        await fetch(
+          `/api/subscriptions?userId=${encodeURIComponent(user.name)}`,
+          {
+            method: "DELETE",
+          }
+        );
+      } catch (dbError) {
+        console.error("Failed to remove subscription from database:", dbError);
+        // Don't fail the unsubscription if database removal fails
+      }
 
       return true;
     } catch (error) {

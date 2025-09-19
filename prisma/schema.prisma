@@ -35,3 +35,16 @@ model Shift {
 
   @@map("shifts")
 }
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String // user identifier (email or name)
+  endpoint  String
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId])
+  @@map("push_subscriptions")
+}

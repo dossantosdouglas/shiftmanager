@@ -3,11 +3,21 @@ import { prisma } from "@/lib/prisma";
 import { ActionType, ShiftType } from "@prisma/client";
 
 // Helper function to get stored push subscriptions
-// In a production app, you'd store these in your database per user
+// Get active push subscriptions from database
 async function getStoredSubscriptions(): Promise<object[]> {
-  // For now, return empty array - we'll implement user subscription storage later
-  // In production, you'd query your database for active push subscriptions
-  return [];
+  try {
+    const subscriptions = await prisma.pushSubscription.findMany();
+    return subscriptions.map(sub => ({
+      endpoint: sub.endpoint,
+      keys: {
+        p256dh: sub.p256dh,
+        auth: sub.auth
+      }
+    }));
+  } catch (error) {
+    console.error("Error fetching subscriptions:", error);
+    return [];
+  }
 }
 
 export async function POST(request: NextRequest) {
