@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ActionType, ShiftType } from "@prisma/client";
 
+// Helper function to get stored push subscriptions
+// In a production app, you'd store these in your database per user
+async function getStoredSubscriptions(): Promise<PushSubscription[]> {
+  // For now, return empty array - we'll implement user subscription storage later
+  // In production, you'd query your database for active push subscriptions
+  return [];
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -40,6 +48,40 @@ export async function POST(request: NextRequest) {
         shiftType,
       },
     });
+
+    // Send push notification for cancellations
+    if (actionType === ActionType.CANCEL) {
+      try {
+        // Get all users who might have push subscriptions
+        // For now, we'll try to get stored subscriptions from a hypothetical storage
+        // In a real app, you'd store subscriptions in the database per user
+        const subscriptions = await getStoredSubscriptions();
+        
+        for (const subscription of subscriptions) {
+          const notificationPayload = {
+            subscription,
+            title: "Shift Cancellation Alert",
+            message: `${employeeName} has cancelled a ${shiftType.toLowerCase()} shift on ${new Date(shiftDate).toLocaleDateString()}`,
+            shiftId: shift.id,
+            employeeName,
+          };
+
+          // Send notification (fire and forget)
+          fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/notifications`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(notificationPayload),
+          }).catch(error => {
+            console.error("Failed to send push notification:", error);
+          });
+        }
+      } catch (error) {
+        console.error("Error sending cancellation notifications:", error);
+        // Don't fail the shift creation if notifications fail
+      }
+    }
 
     return NextResponse.json(shift, { status: 201 });
   } catch (error) {

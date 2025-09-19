@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { ActionType, ShiftType } from "@prisma/client";
 import { ReportResponse, HeatMapResponse } from "@/types/shift";
 import { HeatMap } from "./HeatMap";
+import { NotificationSettings } from "./NotificationSettings";
 
 interface ReportsProps {
   refreshTrigger?: number;
@@ -508,6 +509,9 @@ export function Reports({ refreshTrigger }: ReportsProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Notification Settings */}
+      <NotificationSettings />
     </div>
   );
 }
