@@ -12,10 +12,14 @@ if (process.env.VAPID_SUBJECT && process.env.VAPID_PUBLIC_KEY && process.env.VAP
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("🔔 Notification API called");
     const body = await request.json();
     const { subscription, title, message, shiftId, employeeName } = body;
 
+    console.log("📋 Notification data:", { title, message, hasSubscription: !!subscription });
+
     if (!subscription) {
+      console.log("❌ No subscription provided");
       return NextResponse.json(
         { error: "Push subscription is required" },
         { status: 400 }
@@ -30,15 +34,19 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
 
+    console.log("📤 Sending push notification with payload:", payload);
+
     try {
+      console.log("🔑 VAPID configured:", !!process.env.VAPID_PUBLIC_KEY);
       await webpush.sendNotification(subscription, payload);
+      console.log("✅ Push notification sent successfully");
       
       return NextResponse.json(
         { message: "Push notification sent successfully" },
         { status: 200 }
       );
     } catch (error: unknown) {
-      console.error("Error sending push notification:", error);
+      console.error("❌ Error sending push notification:", error);
       
       // Handle expired subscriptions
       if (error && typeof error === 'object' && 'statusCode' in error && error.statusCode === 410) {
@@ -55,7 +63,7 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error) {
-    console.error("Error in push notification endpoint:", error);
+    console.error("❌ Error in push notification endpoint:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

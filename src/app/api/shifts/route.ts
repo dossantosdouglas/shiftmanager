@@ -6,16 +6,22 @@ import { ActionType, ShiftType } from "@prisma/client";
 // Get active push subscriptions from database
 async function getStoredSubscriptions(): Promise<object[]> {
   try {
+    console.log("📊 Fetching push subscriptions from database...");
     const subscriptions = await prisma.pushSubscription.findMany();
-    return subscriptions.map(sub => ({
+    console.log("📊 Raw subscriptions from DB:", subscriptions.length);
+    
+    const formattedSubs = subscriptions.map(sub => ({
       endpoint: sub.endpoint,
       keys: {
         p256dh: sub.p256dh,
         auth: sub.auth
       }
     }));
+    
+    console.log("📊 Formatted subscriptions:", formattedSubs.length);
+    return formattedSubs;
   } catch (error) {
-    console.error("Error fetching subscriptions:", error);
+    console.error("❌ Error fetching subscriptions:", error);
     return [];
   }
 }
@@ -61,13 +67,18 @@ export async function POST(request: NextRequest) {
 
     // Send push notification for cancellations
     if (actionType === ActionType.CANCEL) {
+      console.log("🔔 Cancellation detected, attempting to send notifications...");
       try {
         // Get all users who might have push subscriptions
-        // For now, we'll try to get stored subscriptions from a hypothetical storage
-        // In a real app, you'd store subscriptions in the database per user
         const subscriptions = await getStoredSubscriptions();
+        console.log("📋 Found subscriptions:", subscriptions.length);
+        
+        if (subscriptions.length === 0) {
+          console.log("⚠️ No subscriptions found in database");
+        }
         
         for (const subscription of subscriptions) {
+          console.log("📤 Sending notification to subscription");
           const notificationPayload = {
             subscription,
             title: "Shift Cancellation Alert",
@@ -77,18 +88,25 @@ export async function POST(request: NextRequest) {
           };
 
           // Send notification (fire and forget)
-          fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/notifications`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(notificationPayload),
-          }).catch(error => {
-            console.error("Failed to send push notification:", error);
-          });
+          try {
+            const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/notifications`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(notificationPayload),
+            });
+            console.log("✅ Notification API response:", response.status);
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.log("❌ Notification API error:", errorText);
+            }
+          } catch (fetchError) {
+            console.error("❌ Failed to send push notification:", fetchError);
+          }
         }
       } catch (error) {
-        console.error("Error sending cancellation notifications:", error);
+        console.error("❌ Error sending cancellation notifications:", error);
         // Don't fail the shift creation if notifications fail
       }
     }
