@@ -36,15 +36,27 @@ export function HeatMap({
     return Math.max(0.1, value / maxValue);
   };
 
+  // Get text color based on background intensity
+  const getTextColor = (value: number) => {
+    const intensity = getIntensity(value);
+    return intensity > 0.5 ? "text-white" : "text-gray-800";
+  };
+
   // Get color class based on intensity
   const getColorClass = (value: number) => {
     const intensity = getIntensity(value);
-    if (intensity === 0) return "bg-gray-100 hover:bg-gray-200";
-    if (intensity <= 0.2) return "bg-red-100 hover:bg-red-150";
-    if (intensity <= 0.4) return "bg-red-200 hover:bg-red-250";
-    if (intensity <= 0.6) return "bg-red-300 hover:bg-red-350";
-    if (intensity <= 0.8) return "bg-red-400 hover:bg-red-450";
-    return "bg-red-500 hover:bg-red-550";
+    const textColor = getTextColor(value);
+    if (intensity === 0)
+      return `bg-slate-100 hover:bg-slate-200 border-slate-200 ${textColor}`;
+    if (intensity <= 0.2)
+      return `bg-orange-200 hover:bg-orange-300 border-orange-300 ${textColor}`;
+    if (intensity <= 0.4)
+      return `bg-orange-400 hover:bg-orange-500 border-orange-400 ${textColor}`;
+    if (intensity <= 0.6)
+      return `bg-red-400 hover:bg-red-500 border-red-400 text-white`;
+    if (intensity <= 0.8)
+      return `bg-red-600 hover:bg-red-700 border-red-600 text-white`;
+    return `bg-red-800 hover:bg-red-900 border-red-800 text-white`;
   };
 
   return (
@@ -110,7 +122,7 @@ export function HeatMap({
                       <div
                         key={`${day}-${hourIndex}`}
                         className={cn(
-                          "flex-1 h-6 border border-gray-200 flex items-center justify-center text-xs transition-colors cursor-pointer min-w-0",
+                          "flex-1 h-8 border flex items-center justify-center text-xs font-medium transition-all duration-200 cursor-pointer min-w-0 shadow-sm rounded-sm",
                           getColorClass(value)
                         )}
                         title={`${day} ${HOURS[hourIndex]}:00 - ${value} cancellations`}
@@ -144,16 +156,16 @@ export function HeatMap({
           </div>{" "}
           {/* Legend */}
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-muted-foreground">Less</span>
+            <span className="text-muted-foreground font-medium">Menos</span>
             <div className="flex gap-1">
-              <div className="w-3 h-3 bg-gray-100 border border-gray-200"></div>
-              <div className="w-3 h-3 bg-red-100 border border-gray-200"></div>
-              <div className="w-3 h-3 bg-red-200 border border-gray-200"></div>
-              <div className="w-3 h-3 bg-red-300 border border-gray-200"></div>
-              <div className="w-3 h-3 bg-red-400 border border-gray-200"></div>
-              <div className="w-3 h-3 bg-red-500 border border-gray-200"></div>
+              <div className="w-4 h-4 bg-slate-100 border border-slate-200 rounded-sm"></div>
+              <div className="w-4 h-4 bg-orange-200 border border-orange-300 rounded-sm"></div>
+              <div className="w-4 h-4 bg-orange-400 border border-orange-400 rounded-sm"></div>
+              <div className="w-4 h-4 bg-red-400 border border-red-400 rounded-sm"></div>
+              <div className="w-4 h-4 bg-red-600 border border-red-600 rounded-sm"></div>
+              <div className="w-4 h-4 bg-red-800 border border-red-800 rounded-sm"></div>
             </div>
-            <span className="text-muted-foreground">More</span>
+            <span className="text-muted-foreground font-medium">Mais</span>
           </div>
           {/* Insights */}
           {totalCancellations > 0 && (
