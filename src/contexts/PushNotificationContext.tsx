@@ -165,20 +165,33 @@ export function PushNotificationProvider({
     }
 
     try {
-      await fetch("/api/notifications", {
+      console.log("🧪 Sending test notification...");
+      console.log("📋 Subscription:", subscription);
+
+      const response = await fetch("/api/notifications", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          subscription,
+          subscription: subscription.toJSON(),
           title: "Test Notification",
           message:
             "This is a test push notification from Shift Management Panel",
         }),
       });
+
+      console.log("📡 Test notification response:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ Test notification error:", errorText);
+        throw new Error(`Failed to send test notification: ${response.status}`);
+      }
+
+      console.log("✅ Test notification sent successfully");
     } catch (error) {
-      console.error("Error sending test notification:", error);
+      console.error("❌ Error sending test notification:", error);
       throw error;
     }
   };
