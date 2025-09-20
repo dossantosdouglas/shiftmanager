@@ -1,10 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ActionType, ShiftType } from "@prisma/client";
+import webpush from "web-push";
+
+// Configure web-push with VAPID keys only if they exist
+if (process.env.VAPID_SUBJECT && process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    process.env.VAPID_SUBJECT,
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+}
+
+// Function to send push notification directly
+async function sendPushNotification(subscription: { endpoint: string; keys: { p256dh: string; auth: string } }, title: string, message: string, shiftId: string, employeeName: string) {
+  try {
+    const payload = JSON.stringify({
+      title: title,
+      body: message,
+      shiftId,
+      employeeName,
+      timestamp: new Date().toISOString()
+    });
+
+    console.log("📤 Sending push notification with payload:", payload);
+    await webpush.sendNotification(subscription, payload);
+    console.log("✅ Push notification sent successfully");
+    return true;
+  } catch (error) {
+    console.error("❌ Error sending push notification:", error);
+    return false;
+  }
+}
 
 // Helper function to get stored push subscriptions
 // Get active push subscriptions from database
-async function getStoredSubscriptions(): Promise<object[]> {
+async function getStoredSubscriptions(): Promise<{ endpoint: string; keys: { p256dh: string; auth: string } }[]> {
   try {
     console.log("📊 Fetching push subscriptions from database...");
     const subscriptions = await prisma.pushSubscription.findMany();
@@ -79,30 +110,18 @@ export async function POST(request: NextRequest) {
         
         for (const subscription of subscriptions) {
           console.log("📤 Sending notification to subscription");
-          const notificationPayload = {
-            subscription,
-            title: "Shift Cancellation Alert",
-            message: `${employeeName} has cancelled a ${shiftType.toLowerCase()} shift on ${new Date(shiftDate).toLocaleDateString()}`,
-            shiftId: shift.id,
-            employeeName,
-          };
-
-          // Send notification (fire and forget)
-          try {
-            const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/notifications`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(notificationPayload),
-            });
-            console.log("✅ Notification API response:", response.status);
-            if (!response.ok) {
-              const errorText = await response.text();
-              console.log("❌ Notification API error:", errorText);
-            }
-          } catch (fetchError) {
-            console.error("❌ Failed to send push notification:", fetchError);
+          const result = await sendPushNotification(
+            subscription as { endpoint: string; keys: { p256dh: string; auth: string } },
+            "Shift Cancellation Alert",
+            `${employeeName} has cancelled a ${shiftType.toLowerCase()} shift on ${new Date(shiftDate).toLocaleDateString()}`,
+            shift.id,
+            employeeName
+          );
+          
+          if (result) {
+            console.log("✅ Notification sent successfully");
+          } else {
+            console.log("❌ Failed to send notification");
           }
         }
       } catch (error) {
